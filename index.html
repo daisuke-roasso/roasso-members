@@ -5,13 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ロアッソ熊本 2026 メンバー一覧 非公式</title>
   <style>
-    :root{
-      --accent:#c4001a;
-      --bg:#ffffff;
-      --text:#111;
-      --muted:#666;
-      --border:#e6e6e6;
-    }
+:root{
+  /* ロアッソ熊本 カラー */
+  --roasso-red: #c4001a;
+  --roasso-red-soft: rgba(196,0,26,0.06);
+
+  /* ベースカラー */
+  --bg: #ffffff;
+  --text: #111;
+  --muted: #666;
+  --border: #e6e6e6;
+
+  /* 既存互換（使ってる場合用） */
+  --accent: var(--roasso-red);
+}
+
+td.no{
+  color: var(--roasso-red);
+  font-weight: 700;
+}    
     body{
       margin:0;
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
@@ -75,12 +87,12 @@
     thead th{
       position: sticky;
       top: 0px; /* headerの高さに合わせる */
-      background:#fff;
+  background: var(--roasso-red-soft);
       z-index: 5;
       font-size:13px;
       text-align:left;
       padding:12px 10px;
-      border-bottom:1px solid var(--border);
+  border-bottom: 2px solid var(--roasso-red);
       white-space:nowrap;
       cursor:pointer;
     }
