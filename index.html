@@ -19,7 +19,7 @@
       --header-h: 120px;
 
       /* 列幅（Gridで完全一致させる） */
-      --col-no: 72px;
+      --col-no: 96px;      /* ← 修正：72px → 96px */
       --col-nick: 110px;
     }
 
@@ -104,7 +104,7 @@
       position: sticky;
       top: var(--header-h);
       z-index: 40;
-      background:#fff5f6;              /* 不透明（透けない） */
+      background:#fff5f6;
       border-bottom:2px solid var(--roasso-red);
     }
 
@@ -166,7 +166,7 @@
     }
     footer a:hover{ text-decoration:underline; }
 
-    /* スマホでネーム列を少し詰める（見やすさ） */
+    /* スマホでネーム列を少し詰める */
     @media (max-width: 480px){
       :root{ --col-nick: 96px; }
     }
@@ -185,14 +185,14 @@
 
   <main>
     <div class="list" role="table" aria-label="メンバー一覧">
-      <!-- 列ヘッダー（固定） -->
+      <!-- 列ヘッダー -->
       <div class="colhead grid" role="row">
         <div class="cell" role="columnheader" data-key="no">背番号<span class="hint">tap</span></div>
         <div class="cell" role="columnheader" data-key="name">選手<span class="hint">tap</span></div>
         <div class="cell" role="columnheader" data-key="nick">ネーム<span class="hint">tap</span></div>
       </div>
 
-      <!-- 行（JSで描画） -->
+      <!-- 行 -->
       <div id="rows" role="rowgroup"></div>
     </div>
 
@@ -207,7 +207,7 @@
   </main>
 
   <script>
-    /* ===== headerの実高さをCSS変数に反映（2段固定のズレ対策） ===== */
+    /* ===== headerの実高さをCSS変数に反映 ===== */
     const headerEl = document.querySelector("header");
     function syncHeaderHeight(){
       const h = Math.ceil(headerEl.getBoundingClientRect().height);
@@ -285,8 +285,6 @@
       `).join("");
 
       count.textContent = `${filtered.length}人`;
-
-      /* 件数などで header が折り返して高さが変わる可能性があるので再計測 */
       syncHeaderHeight();
     }
 
@@ -295,12 +293,8 @@
     document.querySelectorAll(".colhead [data-key]").forEach(el=>{
       el.addEventListener("click", ()=>{
         const key = el.dataset.key;
-        if(sortKey === key){
-          sortAsc = !sortAsc;
-        }else{
-          sortKey = key;
-          sortAsc = true;
-        }
+        sortAsc = sortKey === key ? !sortAsc : true;
+        sortKey = key;
         render();
       });
     });
