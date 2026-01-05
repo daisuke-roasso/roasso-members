@@ -5,52 +5,52 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ロアッソ熊本 2026 メンバー一覧 【非公式】</title>
   <style>
-:root{
-  /* ロアッソ熊本 カラー */
-  --roasso-red: #c4001a;
-  --roasso-red-soft: rgba(196,0,26,0.06);
+    :root{
+      /* ロアッソ熊本 カラー */
+      --roasso-red: #c4001a;
+      --roasso-red-soft: rgba(196,0,26,0.06);
 
-  /* ベースカラー */
-  --bg: #ffffff;
-  --text: #111;
-  --muted: #666;
-  --border: #e6e6e6;
+      /* ベースカラー */
+      --bg: #ffffff;
+      --text: #111;
+      --muted: #666;
+      --border: #e6e6e6;
 
-  /* 既存互換（使ってる場合用） */
-  --accent: var(--roasso-red);
-}
-tbody tr:hover{
-  background: var(--roasso-red-soft);
-}
-td.no{
-  color: var(--roasso-red);
-  font-weight: 700;
-}    
+      /* 既存互換 */
+      --accent: var(--roasso-red);
+
+      /* ★追加 2段固定のための高さ */
+      --header-h: 120px;
+    }
+
     body{
       margin:0;
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
       background:var(--bg);
       color:var(--text);
     }
+
+    /* ★上段固定（タイトル＋検索） */
     header{
-      padding:16px 14px 10px;
-      border-bottom:1px solid var(--border);
       position: sticky;
       top: 0;
+      z-index: 20;
+
+      height: var(--header-h);
+      box-sizing: border-box;
+
+      padding:16px 14px 10px;
       background: rgba(255,255,255,.92);
       backdrop-filter: blur(8px);
-      z-index: 10;
+      border-bottom:1px solid var(--border);
     }
+
     h1{
       margin:0 0 6px;
       font-size:18px;
       line-height:1.25;
     }
-    .sub{
-      margin:0;
-      color:var(--muted);
-      font-size:12px;
-    }
+
     .controls{
       display:flex;
       gap:10px;
@@ -58,6 +58,7 @@ td.no{
       flex-wrap:wrap;
       align-items:center;
     }
+
     input[type="search"]{
       flex:1 1 220px;
       padding:10px 12px;
@@ -65,6 +66,7 @@ td.no{
       border-radius:10px;
       font-size:14px;
     }
+
     .pill{
       font-size:12px;
       padding:6px 10px;
@@ -73,11 +75,13 @@ td.no{
       color:var(--muted);
       user-select:none;
     }
+
     main{
       padding:12px 10px 40px;
       max-width:820px;
       margin:0 auto;
     }
+
     table{
       width:100%;
       border-collapse:separate;
@@ -86,18 +90,21 @@ td.no{
       border:1px solid var(--border);
       border-radius:14px;
     }
-thead th{
-  position: relative; /* stickyやめる */
-  top: auto;
-  background: var(--roasso-red-soft);
-  z-index: 1;
-  font-size:13px;
-  text-align:left;
-  padding:12px 10px;
-  border-bottom: 2px solid var(--roasso-red);
-  white-space:nowrap;
-  cursor:pointer;
-}
+
+    /* ★下段固定（表ヘッダー：背番号/選手/ネーム） */
+    thead th{
+      position: sticky;
+      top: var(--header-h);
+      z-index: 15;
+
+      background: var(--roasso-red-soft);
+      font-size:13px;
+      text-align:left;
+      padding:12px 10px;
+      border-bottom: 2px solid var(--roasso-red);
+      white-space:nowrap;
+      cursor:pointer;
+    }
 
     thead th .hint{
       color:var(--muted);
@@ -105,6 +112,7 @@ thead th{
       margin-left:6px;
       font-size:11px;
     }
+
     tbody td{
       padding:12px 10px;
       border-bottom:1px solid var(--border);
@@ -112,10 +120,19 @@ thead th{
       vertical-align:middle;
     }
     tbody tr:last-child td{ border-bottom:none; }
+
+    /* ホバー色 */
+    tbody tr:hover{
+      background: var(--roasso-red-soft);
+    }
+
     .no{
       width:72px;
       font-variant-numeric: tabular-nums;
+      color: var(--roasso-red);
+      font-weight: 700;
     }
+
     .tag{
       display:inline-block;
       padding:3px 8px;
@@ -125,18 +142,15 @@ thead th{
       font-size:12px;
       font-weight:600;
     }
+
     footer{
       margin-top:10px;
       color:var(--muted);
       font-size:12px;
       line-height:1.6;
     }
+
     a{ color:var(--accent); }
-
-
-}  
-
-    
   </style>
 </head>
 <body>
@@ -161,53 +175,48 @@ thead th{
       <tbody id="rows"></tbody>
     </table>
 
-   <footer>
-  <div>
-    注 非公式ページです 正式情報は
-    <a href="https://roasso-k.com/" target="_blank" rel="noopener">
-      クラブ公式
-    </a>
-    をご確認ください
-  </div>
-  <div>最終更新 <span id="updated"></span></div>
-</footer>
+    <footer>
+      <div>
+        注 非公式ページです 正式情報は
+        <a href="https://roasso-k.com/" target="_blank" rel="noopener">クラブ公式</a>
+        をご確認ください
+      </div>
+      <div>最終更新 <span id="updated"></span></div>
+    </footer>
   </main>
 
   <script>
-    // ====== DATA ここを埋める ======
     const members = [
-  { no: 1,  name: "佐藤 史騎",   nick: "SHIBUKI" },
-  { no: 2,  name: "黒木 晃平",   nick: "KUROKI" },
-  { no: 3,  name: "大西 遼太郎", nick: "RYOTARO" },
-  { no: 4,  name: "薬師田 澪",   nick: "YAKUSHIDA" },
-  { no: 5,  name: "小林 慶太",   nick: "KOBAYASHI" },
-  { no: 6,  name: "岩下 航",     nick: "IWASHITA" },
-  { no: 7,  name: "藤井 皓也",   nick: "KOYA" },
-  { no: 8,  name: "上村 周平",   nick: "SHUHEI" },
-  { no: 10, name: "鹿取 勇斗",   nick: "KATORI" },
-  { no: 11, name: "ベ ジョンミン", nick: "BAE" },
-  { no: 13, name: "飯星 明良",   nick: "AKIRA" },
-  { no: 14, name: "石原 央羅",   nick: "OURA" },
-  { no: 15, name: "三島 頌平",   nick: "MISHIMA" },
-  { no: 16, name: "武者 大夢",   nick: "MUSHA" },
-  { no: 17, name: "永井 颯太",   nick: "NAGAI" },
-  { no: 18, name: "半代 将都",   nick: "HANDAI" },
-  { no: 19, name: "渡邉 怜歩",   nick: "REAL" },
-  { no: 21, name: "西村 遥己",   nick: "NISHIMU" },
-  { no: 22, name: "松田 詠太郎", nick: "EITARO" },
-  { no: 23, name: "佐藤 優也",   nick: "YUYA" },
-  { no: 24, name: "李 泰河",     nick: "THAEHA" },
-  { no: 25, name: "那須 健一",   nick: "NASU" },
-  { no: 26, name: "戸田 峻平",   nick: "TODA" },
-  { no: 27, name: "根岸 恵汰",   nick: "NEGI" },
-  { no: 28, name: "吉岡 優希",   nick: "YOSHIOKA" },
-  { no: 30, name: "長嶋 志歩",   nick: "SHIA" },
-  { no: 35, name: "伊藤 颯真",   nick: "SOMA" },
-  { no: 39, name: "青木 俊輔",   nick: "SHUNSUKE" },
-  { no: 41, name: "大本 祐槻",   nick: "OMOTO" },
-      // ここに続けて追加
+      { no: 1,  name: "佐藤 史騎",   nick: "SHIBUKI" },
+      { no: 2,  name: "黒木 晃平",   nick: "KUROKI" },
+      { no: 3,  name: "大西 遼太郎", nick: "RYOTARO" },
+      { no: 4,  name: "薬師田 澪",   nick: "YAKUSHIDA" },
+      { no: 5,  name: "小林 慶太",   nick: "KOBAYASHI" },
+      { no: 6,  name: "岩下 航",     nick: "IWASHITA" },
+      { no: 7,  name: "藤井 皓也",   nick: "KOYA" },
+      { no: 8,  name: "上村 周平",   nick: "SHUHEI" },
+      { no: 10, name: "鹿取 勇斗",   nick: "KATORI" },
+      { no: 11, name: "ベ ジョンミン", nick: "BAE" },
+      { no: 13, name: "飯星 明良",   nick: "AKIRA" },
+      { no: 14, name: "石原 央羅",   nick: "OURA" },
+      { no: 15, name: "三島 頌平",   nick: "MISHIMA" },
+      { no: 16, name: "武者 大夢",   nick: "MUSHA" },
+      { no: 17, name: "永井 颯太",   nick: "NAGAI" },
+      { no: 18, name: "半代 将都",   nick: "HANDAI" },
+      { no: 19, name: "渡邉 怜歩",   nick: "REAL" },
+      { no: 21, name: "西村 遥己",   nick: "NISHIMU" },
+      { no: 22, name: "松田 詠太郎", nick: "EITARO" },
+      { no: 23, name: "佐藤 優也",   nick: "YUYA" },
+      { no: 24, name: "李 泰河",     nick: "THAEHA" },
+      { no: 25, name: "那須 健一",   nick: "NASU" },
+      { no: 26, name: "戸田 峻平",   nick: "TODA" },
+      { no: 27, name: "根岸 恵汰",   nick: "NEGI" },
+      { no: 28, name: "吉岡 優希",   nick: "YOSHIOOKA" },
+      { no: 30, name: "長嶋 志歩",   nick: "SHIA" },
+      { no: 35, name: "伊藤 颯真",   nick: "SOMA" },
+      { no: 39, name: "青木 俊輔",   nick: "SHUNSUKE" },
+      { no: 41, name: "大本 祐槻",   nick: "OMOTO" }
     ];
-    // ============================
 
     const rows = document.getElementById("rows");
     const q = document.getElementById("q");
