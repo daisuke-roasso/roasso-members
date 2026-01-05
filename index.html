@@ -9,16 +9,18 @@
     :root{
       --roasso-red: #c4001a;
       --roasso-red-soft: rgba(196,0,26,0.06);
-
       --bg:#ffffff;
       --text:#111;
       --muted:#666;
       --border:#e6e6e6;
-
       --accent: var(--roasso-red);
 
-      /* JSで実測値を入れる */
+      /* JSで header の実高さを入れる */
       --header-h: 120px;
+
+      /* 列幅（Gridで完全一致させる） */
+      --col-no: 72px;
+      --col-nick: 110px;
     }
 
     body{
@@ -33,8 +35,7 @@
     header{
       position: sticky;
       top: 0;
-      z-index: 30;
-
+      z-index: 50;
       padding:16px 14px 12px;
       background: rgba(255,255,255,.95);
       backdrop-filter: blur(8px);
@@ -81,6 +82,7 @@
       border:1px solid var(--border);
       color:var(--muted);
       white-space:nowrap;
+      user-select:none;
     }
 
     main{
@@ -89,54 +91,65 @@
       margin:0 auto;
     }
 
-    table{
-      width:100%;
-      border-collapse:separate;
-      border-spacing:0;
+    /* ===== 一覧カード枠 ===== */
+    .list{
       border:1px solid var(--border);
       border-radius:14px;
       overflow:hidden;
+      background:#fff;
     }
 
-    /* ===== 下段固定（一覧ヘッダー） ===== */
-    thead th{
+    /* ===== 下段固定（列ヘッダー） ===== */
+    .colhead{
       position: sticky;
       top: var(--header-h);
-      z-index: 20;
-
-      background:#fff5f6; /* 不透明 */
-      font-size:13px;
-      text-align:left;
-      padding:12px 10px;
+      z-index: 40;
+      background:#fff5f6;              /* 不透明（透けない） */
       border-bottom:2px solid var(--roasso-red);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: var(--col-no) 1fr var(--col-nick);
+      gap:0;
+      align-items:center;
+    }
+
+    .colhead .cell{
+      padding:12px 10px;
+      font-size:13px;
+      font-weight:600;
       white-space:nowrap;
       cursor:pointer;
     }
 
-    thead th .hint{
+    .hint{
       color:var(--muted);
       font-weight:400;
       margin-left:6px;
       font-size:11px;
     }
 
-    tbody td{
-      padding:12px 10px;
+    /* ===== 行 ===== */
+    .row{
       border-bottom:1px solid var(--border);
-      font-size:14px;
-      vertical-align:middle;
+      background:#fff;
     }
-    tbody tr:last-child td{ border-bottom:none; }
+    .row:last-child{ border-bottom:none; }
 
-    tbody tr:hover{
+    .row .cell{
+      padding:12px 10px;
+      font-size:14px;
+    }
+
+    .row:hover{
       background: var(--roasso-red-soft);
     }
 
     .no{
-      width:72px;
-      font-variant-numeric: tabular-nums;
       color: var(--roasso-red);
       font-weight:700;
+      font-variant-numeric: tabular-nums;
     }
 
     footer{
@@ -151,8 +164,11 @@
       font-weight:600;
       text-decoration:none;
     }
-    footer a:hover{
-      text-decoration:underline;
+    footer a:hover{ text-decoration:underline; }
+
+    /* スマホでネーム列を少し詰める（見やすさ） */
+    @media (max-width: 480px){
+      :root{ --col-nick: 96px; }
     }
   </style>
 </head>
@@ -161,23 +177,24 @@
   <header>
     <h1>ロアッソ熊本 2026 メンバー一覧<span class="tag">非公式</span></h1>
     <div class="controls">
-      <input id="q" type="search" placeholder="検索 例 10 佐藤 SHIBUKI" />
+      <input id="q" type="search" placeholder="検索 例 10 佐藤 SHIBUKI" aria-label="検索" />
       <span class="pill" id="count">0人</span>
       <span class="pill">列名タップで並び替え</span>
     </div>
   </header>
 
   <main>
-    <table>
-      <thead>
-        <tr>
-          <th data-key="no">背番号<span class="hint">tap</span></th>
-          <th data-key="name">選手<span class="hint">tap</span></th>
-          <th data-key="nick">ネーム<span class="hint">tap</span></th>
-        </tr>
-      </thead>
-      <tbody id="rows"></tbody>
-    </table>
+    <div class="list" role="table" aria-label="メンバー一覧">
+      <!-- 列ヘッダー（固定） -->
+      <div class="colhead grid" role="row">
+        <div class="cell" role="columnheader" data-key="no">背番号<span class="hint">tap</span></div>
+        <div class="cell" role="columnheader" data-key="name">選手<span class="hint">tap</span></div>
+        <div class="cell" role="columnheader" data-key="nick">ネーム<span class="hint">tap</span></div>
+      </div>
+
+      <!-- 行（JSで描画） -->
+      <div id="rows" role="rowgroup"></div>
+    </div>
 
     <footer>
       <div>
@@ -190,7 +207,7 @@
   </main>
 
   <script>
-    /* ===== headerの実高さをCSS変数に反映 ===== */
+    /* ===== headerの実高さをCSS変数に反映（2段固定のズレ対策） ===== */
     const headerEl = document.querySelector("header");
     function syncHeaderHeight(){
       const h = Math.ceil(headerEl.getBoundingClientRect().height);
@@ -203,20 +220,92 @@
 
     /* ===== データ ===== */
     const members = [
-      { no:1,  name:"佐藤 史騎",   nick:"SHIBUKI" },
-      { no:2,  name:"黒木 晃平",   nick:"KUROKI" },
-      { no:3,  name:"大西 遼太郎", nick:"RYOTARO" },
-      { no:4,  name:"薬師田 澪",   nick:"YAKUSHIDA" },
-      { no:5,  name:"小林 慶太",   nick:"KOBAYASHI" },
-      { no:6,  name:"岩下 航",     nick:"IWASHITA" },
-      { no:7,  name:"藤井 皓也",   nick:"KOYA" },
-      { no:8,  name:"上村 周平",   nick:"SHUHEI" },
-      { no:10, name:"鹿取 勇斗",   nick:"KATORI" },
-      { no:11, name:"ベ ジョンミン", nick:"BAE" },
-      { no:13, name:"飯星 明良",   nick:"AKIRA" },
-      { no:14, name:"石原 央羅",   nick:"OURA" },
-      { no:15, name:"三島 頌平",   nick:"MISHIMA" },
-      { no:16, name:"武者 大夢",   nick:"MUSHA" },
-      { no:17, name:"永井 颯太",   nick:"NAGAI" },
-      { no:18, name:"半代 将都",   nick:"HANDAI" },
-      { no:19, name:"渡邉
+      { no: 1,  name: "佐藤 史騎",   nick: "SHIBUKI" },
+      { no: 2,  name: "黒木 晃平",   nick: "KUROKI" },
+      { no: 3,  name: "大西 遼太郎", nick: "RYOTARO" },
+      { no: 4,  name: "薬師田 澪",   nick: "YAKUSHIDA" },
+      { no: 5,  name: "小林 慶太",   nick: "KOBAYASHI" },
+      { no: 6,  name: "岩下 航",     nick: "IWASHITA" },
+      { no: 7,  name: "藤井 皓也",   nick: "KOYA" },
+      { no: 8,  name: "上村 周平",   nick: "SHUHEI" },
+      { no: 10, name: "鹿取 勇斗",   nick: "KATORI" },
+      { no: 11, name: "ベ ジョンミン", nick: "BAE" },
+      { no: 13, name: "飯星 明良",   nick: "AKIRA" },
+      { no: 14, name: "石原 央羅",   nick: "OURA" },
+      { no: 15, name: "三島 頌平",   nick: "MISHIMA" },
+      { no: 16, name: "武者 大夢",   nick: "MUSHA" },
+      { no: 17, name: "永井 颯太",   nick: "NAGAI" },
+      { no: 18, name: "半代 将都",   nick: "HANDAI" },
+      { no: 19, name: "渡邉 怜歩",   nick: "REAL" },
+      { no: 21, name: "西村 遥己",   nick: "NISHIMU" },
+      { no: 22, name: "松田 詠太郎", nick: "EITARO" },
+      { no: 23, name: "佐藤 優也",   nick: "YUYA" },
+      { no: 24, name: "李 泰河",     nick: "THAEHA" },
+      { no: 25, name: "那須 健一",   nick: "NASU" },
+      { no: 26, name: "戸田 峻平",   nick: "TODA" },
+      { no: 27, name: "根岸 恵汰",   nick: "NEGI" },
+      { no: 28, name: "吉岡 優希",   nick: "YOSHIOKA" },
+      { no: 30, name: "長嶋 志歩",   nick: "SHIA" },
+      { no: 35, name: "伊藤 颯真",   nick: "SOMA" },
+      { no: 39, name: "青木 俊輔",   nick: "SHUNSUKE" },
+      { no: 41, name: "大本 祐槻",   nick: "OMOTO" }
+    ];
+
+    const rows = document.getElementById("rows");
+    const q = document.getElementById("q");
+    const count = document.getElementById("count");
+    const updated = document.getElementById("updated");
+    updated.textContent = new Date().toISOString().slice(0,10);
+
+    let sortKey = "no";
+    let sortAsc = true;
+
+    const normalize = s => String(s).toLowerCase().replace(/\s+/g,"");
+
+    function render(){
+      const query = normalize(q.value);
+      let filtered = members.filter(m =>
+        !query || normalize(`${m.no} ${m.name} ${m.nick}`).includes(query)
+      );
+
+      filtered.sort((a,b)=>{
+        const av=a[sortKey], bv=b[sortKey];
+        if(typeof av==="number") return sortAsc?av-bv:bv-av;
+        return sortAsc
+          ? String(av).localeCompare(String(bv),"ja")
+          : String(bv).localeCompare(String(av),"ja");
+      });
+
+      rows.innerHTML = filtered.map(m => `
+        <div class="row grid" role="row">
+          <div class="cell no" role="cell">${m.no}</div>
+          <div class="cell" role="cell">${m.name}</div>
+          <div class="cell" role="cell">${m.nick}</div>
+        </div>
+      `).join("");
+
+      count.textContent = `${filtered.length}人`;
+
+      /* 件数などで header が折り返して高さが変わる可能性があるので再計測 */
+      syncHeaderHeight();
+    }
+
+    q.addEventListener("input", render);
+
+    document.querySelectorAll(".colhead [data-key]").forEach(el=>{
+      el.addEventListener("click", ()=>{
+        const key = el.dataset.key;
+        if(sortKey === key){
+          sortAsc = !sortAsc;
+        }else{
+          sortKey = key;
+          sortAsc = true;
+        }
+        render();
+      });
+    });
+
+    render();
+  </script>
+</body>
+</html>
