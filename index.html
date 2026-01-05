@@ -165,7 +165,27 @@
       text-decoration:none;
     }
     footer a:hover{ text-decoration:underline; }
+    
+.list{
+  border:1px solid var(--border);
+  border-radius:14px;
+  overflow: clip;
+  background:#fff;
+}
 
+.colhead{
+  position: sticky;
+  top: var(--header-h);
+  z-index: 9999;
+  isolation: isolate;
+  background:#fff5f6;
+  border-bottom:2px solid var(--roasso-red);
+}
+
+.row{
+  position: relative;
+  z-index: 0;
+}
     /* スマホでネーム列を少し詰める */
     @media (max-width: 480px){
       :root{ --col-nick: 96px; }
