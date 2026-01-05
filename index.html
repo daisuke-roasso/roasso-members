@@ -86,18 +86,19 @@ td.no{
       border:1px solid var(--border);
       border-radius:14px;
     }
-    thead th{
-  position: sticky;
-  top: 88px; /* ← header の実際の高さ分 */
+thead th{
+  position: relative; /* stickyやめる */
+  top: auto;
   background: var(--roasso-red-soft);
-  z-index: 5;
-      font-size:13px;
-      text-align:left;
-      padding:12px 10px;
+  z-index: 1;
+  font-size:13px;
+  text-align:left;
+  padding:12px 10px;
   border-bottom: 2px solid var(--roasso-red);
-      white-space:nowrap;
-      cursor:pointer;
-    }
+  white-space:nowrap;
+  cursor:pointer;
+}
+
     thead th .hint{
       color:var(--muted);
       font-weight:400;
@@ -132,10 +133,7 @@ td.no{
     }
     a{ color:var(--accent); }
 
-  @media (max-width: 600px){
-  thead th{
-    top: 104px;
-  }
+
 }  
 
     
