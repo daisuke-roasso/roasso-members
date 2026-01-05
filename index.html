@@ -92,19 +92,19 @@
     }
 
     /* ★下段固定（表ヘッダー：背番号/選手/ネーム） */
-    thead th{
-      position: sticky;
-      top: var(--header-h);
-      z-index: 15;
+thead th{
+  position: sticky;
+  top: var(--header-h);
+  z-index: 15;
 
-      background: var(--roasso-red-soft);
-      font-size:13px;
-      text-align:left;
-      padding:12px 10px;
-      border-bottom: 2px solid var(--roasso-red);
-      white-space:nowrap;
-      cursor:pointer;
-    }
+  background: #fff5f6; /* ← 不透明な薄赤にする */
+  font-size:13px;
+  text-align:left;
+  padding:12px 10px;
+  border-bottom: 2px solid var(--roasso-red);
+  white-space:nowrap;
+  cursor:pointer;
+}
 
     thead th .hint{
       color:var(--muted);
