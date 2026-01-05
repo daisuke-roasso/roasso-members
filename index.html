@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ロアッソ熊本 2026 メンバー一覧 非公式</title>
+  <style>
+    :root{
+      --accent:#c4001a;
+      --bg:#ffffff;
+      --text:#111;
+      --muted:#666;
+      --border:#e6e6e6;
+    }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+    header{
+      padding:16px 14px 10px;
+      border-bottom:1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(8px);
+      z-index: 10;
+    }
+    h1{
+      margin:0 0 6px;
+      font-size:18px;
+      line-height:1.25;
+    }
+    .sub{
+      margin:0;
+      color:var(--muted);
+      font-size:12px;
+    }
+    .controls{
+      display:flex;
+      gap:10px;
+      margin-top:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    input[type="search"]{
+      flex:1 1 220px;
+      padding:10px 12px;
+      border:1px solid var(--border);
+      border-radius:10px;
+      font-size:14px;
+    }
+    .pill{
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      color:var(--muted);
+      user-select:none;
+    }
+    main{
+      padding:12px 10px 40px;
+      max-width:820px;
+      margin:0 auto;
+    }
+    table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      overflow:hidden;
+      border:1px solid var(--border);
+      border-radius:14px;
+    }
+    thead th{
+      position: sticky;
+      top: 86px; /* headerの高さに合わせる */
+      background:#fff;
+      z-index: 5;
+      font-size:13px;
+      text-align:left;
+      padding:12px 10px;
+      border-bottom:1px solid var(--border);
+      white-space:nowrap;
+      cursor:pointer;
+    }
+    thead th .hint{
+      color:var(--muted);
+      font-weight:400;
+      margin-left:6px;
+      font-size:11px;
+    }
+    tbody td{
+      padding:12px 10px;
+      border-bottom:1px solid var(--border);
+      font-size:14px;
+      vertical-align:middle;
+    }
+    tbody tr:last-child td{ border-bottom:none; }
+    .no{
+      width:72px;
+      font-variant-numeric: tabular-nums;
+    }
+    .tag{
+      display:inline-block;
+      padding:3px 8px;
+      border-radius:999px;
+      background: rgba(196,0,26,.08);
+      color: var(--accent);
+      font-size:12px;
+      font-weight:600;
+    }
+    footer{
+      margin-top:10px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.6;
+    }
+    a{ color:var(--accent); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>ロアッソ熊本 2026 メンバー一覧 <span class="tag">非公式</span></h1>
+    <p class="sub">見やすさ重視の表です 公式発表に変更があれば適宜更新してください</p>
+    <div class="controls">
+      <input id="q" type="search" placeholder="検索 例 10 佐藤 SHIBUKI" aria-label="検索" />
+      <span class="pill" id="count">0人</span>
+      <span class="pill">列名タップで並び替え</span>
+    </div>
+  </header>
+
+  <main>
+    <table aria-label="メンバー一覧">
+      <thead>
+        <tr>
+          <th data-key="no">背番号<span class="hint">tap</span></th>
+          <th data-key="name">選手<span class="hint">tap</span></th>
+          <th data-key="nick">ネーム<span class="hint">tap</span></th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+
+    <footer>
+      <div>注 非公式ページです 正式情報はクラブ公式をご確認ください</div>
+      <div>最終更新 <span id="updated"></span></div>
+    </footer>
+  </main>
+
+  <script>
+    // ====== DATA ここを埋める ======
+    const members = [
+      { no: 1,  name: "佐藤 史騎", nick: "SHIBUKI" },
+      { no: 2,  name: "黒木 晃平", nick: "KUROKI" },
+      { no: 3,  name: "大西 遼太郎", nick: "RYOTARO" },
+      { no: 4,  name: "薬師田 澪", nick: "YAKUSHIDA" },
+      { no: 5,  name: "小林 慶太", nick: "KOBAYASHI" }
+      // ここに続けて追加
+    ];
+    // ============================
+
+    const rows = document.getElementById("rows");
+    const q = document.getElementById("q");
+    const count = document.getElementById("count");
+    const updated = document.getElementById("updated");
+
+    updated.textContent = new Date().toISOString().slice(0,10);
+
+    let sortKey = "no";
+    let sortAsc = true;
+
+    function normalize(s){
+      return String(s).toLowerCase().replace(/\s+/g,"");
+    }
+
+    function render(){
+      const query = normalize(q.value);
+      let filtered = members.filter(m => {
+        if(!query) return true;
+        const hay = normalize(`${m.no} ${m.name} ${m.nick}`);
+        return hay.includes(query);
+      });
+
+      filtered.sort((a,b)=>{
+        const av = a[sortKey];
+        const bv = b[sortKey];
+        if(typeof av === "number" && typeof bv === "number"){
+          return sortAsc ? av-bv : bv-av;
+        }
+        return sortAsc
+          ? String(av).localeCompare(String(bv), "ja")
+          : String(bv).localeCompare(String(av), "ja");
+      });
+
+      rows.innerHTML = filtered.map(m => `
+        <tr>
+          <td class="no">${m.no}</td>
+          <td>${m.name}</td>
+          <td>${m.nick}</td>
+        </tr>
+      `).join("");
+
+      count.textContent = `${filtered.length}人`;
+    }
+
+    q.addEventListener("input", render);
+
+    document.querySelectorAll("thead th").forEach(th=>{
+      th.addEventListener("click", ()=>{
+        const key = th.dataset.key;
+        if(sortKey === key){
+          sortAsc = !sortAsc;
+        }else{
+          sortKey = key;
+          sortAsc = true;
+        }
+        render();
+      });
+    });
+
+    render();
+  </script>
+</body>
+</html>
